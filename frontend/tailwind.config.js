@@ -5,11 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-  extend: {
-    fontFamily: {
-      sans: ['Poppins', 'sans-serif'],
+    extend: {
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
+        struic: ['Struic', 'cursive'], // fallback added
+      },
     },
   },
-},
   plugins: [],
 }

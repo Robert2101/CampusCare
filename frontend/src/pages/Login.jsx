@@ -1,6 +1,8 @@
+// client/src/pages/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+// import loginPic from '../assets/loginpic.jpg'; // REMOVED: No longer importing local image
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -50,6 +52,7 @@ const Login = () => {
             ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
             stars.forEach((star) => {
                 ctx.beginPath();
+                // FIX: Corrected arc parameters (radius was incorrectly 'star.y')
                 ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
                 ctx.fill();
                 star.y += star.speed;
@@ -74,7 +77,8 @@ const Login = () => {
     }, []);
 
     return (
-        <div className="relative min-h-screen flex flex-col lg:flex-row bg-black overflow-hidden">
+        // FIX: Changed min-h-screen to h-screen for strict viewport height, removed overflow-hidden
+        <div className="relative h-screen flex flex-col lg:flex-row bg-black">
             {/* Starfield Canvas */}
             <canvas
                 id="starfield"
@@ -83,7 +87,8 @@ const Login = () => {
             ></canvas>
 
             {/* Login Form (Left Side) */}
-            <div className="relative z-10 flex items-center justify-center w-full lg:w-1/2 p-4 lg:p-8">
+            {/* FIX: Added flex-grow to ensure it takes available space in flex row */}
+            <div className="relative z-10 flex flex-grow items-center justify-center w-full lg:w-1/2 p-4 lg:p-8">
                 <div className="bg-black/50 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-black/30">
                     <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 mb-8 ">
                         Welcome Back!
@@ -150,12 +155,14 @@ const Login = () => {
             </div>
 
             {/* Image (Right Side) */}
-            <div className="relative z-10 hidden lg:flex w-full lg:w-1/2 items-center justify-center p-4">
+            {/* FIX: Added flex-grow, removed redundant max-h-screen from img */}
+            <div className="relative z-10 hidden lg:flex flex-grow w-full lg:w-1/2 items-center justify-center p-4">
                 <img
-                    src="https://i.pinimg.com/736x/be/8e/41/be8e418654942968e0419c56f0c102a4.jpg"
+                    src="https://images.pexels.com/photos/13700906/pexels-photo-13700906.jpeg?auto=compress&cs=tinysrgb&w=1200"
                     alt="Dark aesthetic night scene"
-                    className="object-cover w-full h-full max-h-screen rounded-l-2xl shadow-2xl border-l border-indigo-500/30"
+                    className="object-cover w-full h-full rounded-l-2xl shadow-2xl border-l border-indigo-500/30"
                     loading="lazy"
+                    onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/1200x800/2a2a2a/ffffff?text=Image+Not+Found'; }}
                 />
                 <div className="absolute inset-0 bg-black/30"></div> {/* Overlay for contrast */}
             </div>

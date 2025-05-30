@@ -100,7 +100,7 @@ const Register = () => {
             {/* Image (Left Side) */}
             <div className="relative z-10 hidden lg:flex w-full lg:w-1/2 items-center justify-center p-4">
                 <img
-                    src="https://i.pinimg.com/736x/be/8e/41/be8e418654942968e0419c56f0c102a4.jpg"
+                    src="https://images.pexels.com/photos/18591164/pexels-photo-18591164/free-photo-of-a-foggy-landscape-with-trees-and-fog.jpeg?auto=compress&cs=tinysrgb&w=1200"
                     alt="Dark aesthetic night scene"
                     className="object-cover w-full h-full max-h-screen rounded-l-2xl shadow-2xl border-l border-indigo-500/30"
                     loading="lazy"

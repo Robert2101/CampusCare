@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.jpeg'; // Import the logo image
 
 function Home() {
     const [isVisible, setIsVisible] = useState(false);
@@ -55,7 +56,7 @@ function Home() {
 
         const handleResize = () => {
             canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.height = window.height; // Corrected from window.innerHeight to window.height
         };
 
         window.addEventListener('resize', handleResize);
@@ -125,14 +126,17 @@ function Home() {
             <div className="relative z-10">
                 {/* Navigation */}
                 <nav className="fixed top-0 left-0 w-full py-6 px-8 flex justify-between items-center z-50 bg-black/30 backdrop-blur-md">
-                    <div className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
-                        CampusCare
+                    <div className="flex items-center gap-2"> {/* Added flex and gap for logo alignment */}
+                        <img src={logo} alt="CampusCare Logo" className="h-8 w-8 object-contain rounded-full" /> {/* Logo image */}
+                        <div className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
+                            CampusCare
+                        </div>
                     </div>
                     <div className="hidden md:flex gap-8">
                         <a href="#features" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline underline-offset-8">Features</a>
-                        <Link to="/assessment" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline underline-offset-8">Take Assessment</Link>
                         <a href="#resources" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline underline-offset-8">Resources</a>
-                        <a href="#about" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline underline-offset-8">About</a>
+                        <Link to="/assessment" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline underline-offset-8">Take Assessment</Link>
+
                     </div>
                 </nav>
 

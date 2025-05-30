@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png';// Assuming your logo is in src/assets/logo.png
 
 const StudentNavbar = ({ activeTab, setActiveTab }) => {
     const { user, logout } = useAuth();
@@ -27,9 +28,12 @@ const StudentNavbar = ({ activeTab, setActiveTab }) => {
                 {/* Logo */}
                 <Link
                     to="/dashboard/student"
-                    className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 "
+                    className="flex items-center space-x-2" // Added flex and space-x-2 for horizontal alignment and spacing
                 >
-                    CampusCare
+                    <img src={logo} alt="CampusCare Logo" className="h-8 w-8 object-contain rounded-full" /> {/* Logo image */}
+                    <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">
+                        CampusCare
+                    </span>
                 </Link>
 
                 {/* Desktop Menu */}

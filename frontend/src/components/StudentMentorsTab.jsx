@@ -3,9 +3,10 @@ import React from 'react';
 const StudentMentorsTab = ({ mentors, startChat, handleBookAppointmentClick }) => {
     return (
         <section>
-            <h2 className="text-3xl font-bold text-indigo-200 mb-6 border-b-2 border-indigo-500/50 pb-2">
+            <h2 className="text-3xl font-bold mb-6 pb-2 border-b-2 border-white/30 bg-gradient-to-r from-white to-[#fff7e6] bg-clip-text text-transparent">
                 Connect with Mentors
             </h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {mentors.length === 0 ? (
                     <p className="text-center text-gray-400 col-span-full">No mentors available at the moment.</p>
@@ -13,22 +14,30 @@ const StudentMentorsTab = ({ mentors, startChat, handleBookAppointmentClick }) =
                     mentors.map((mentor) => (
                         <div
                             key={mentor._id}
-                            className="bg-gray-900/50 p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-indigo-500/30"
+                            className="bg-gray-900/70 p-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-teal-500/20 hover:border-teal-500/40"
                         >
-                            <h2 className="text-2xl font-bold text-indigo-200 mb-2">{mentor.name}</h2>
-                            <p className="text-gray-400 mb-4">{mentor.email}</p>
-                            <div className="flex flex-col space-y-3">
+                            <h2 className="text-3xl font-bold mb-6 pb-2 border-b-2 border-white/30 bg-gradient-to-r from-white to-[#fff7e6] bg-clip-text text-transparent">{mentor.name}</h2>
+                            <p className="text-gray-400 text-sm mb-4">{mentor.email}</p>
+
+                            <div className="flex flex-col space-y-2">
                                 <button
                                     onClick={() => startChat(mentor._id)}
-                                    className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold py-3 px-5 rounded-lg shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full flex items-center justify-between px-6 py-3 rounded-full text-white font-medium text-base 
+             bg-gradient-to-r from-[#2e2e3a] via-[#3c2d35] to-[#d3a46f] 
+             transition-all duration-500 bg-[length:200%_100%] bg-left hover:bg-right"
                                 >
                                     Chat Anonymously
+                                    <span className="ml-2 text-xl">→</span>
                                 </button>
+
                                 <button
                                     onClick={() => handleBookAppointmentClick(mentor)}
-                                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-5 rounded-lg shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    className="w-full flex items-center justify-between px-6 py-3 rounded-full text-white font-medium text-base 
+             bg-gradient-to-r from-[#2e2e3a] via-[#3c2d35] to-[#d3a46f] 
+             transition-all duration-500 bg-[length:200%_100%] bg-left hover:bg-right"
                                 >
                                     Book Appointment
+                                    <span className="ml-2 text-xl">→</span>
                                 </button>
                             </div>
                         </div>
