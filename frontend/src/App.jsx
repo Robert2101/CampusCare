@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react'; // Modified: Added useState import
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
@@ -9,16 +9,17 @@ import Chat from './pages/Chat';
 import StudentDashboard from './pages/StudentDashboard';
 import MentorDashboard from './pages/MentorDashboard';
 import Home from './pages/Home';
-import MentalHealthAssessment from './pages/MentalHealthAssessment'; // NEW: Import the assessment page
+import MentalHealthAssessment from './pages/MentalHealthAssessment';
 import StudentNavbar from './components/StudentNavbar';
 import MentorNavbar from './components/MentorNavbar';
 
 function App() {
     const { user } = useAuth();
+    const [activeTab, setActiveTab] = useState('overview'); // NEW: State for active tab
 
     const renderNavbar = () => {
         if (!user) return <Navbar />;
-        if (user.role === 'Student') return <StudentNavbar />;
+        if (user.role === 'Student') return <StudentNavbar activeTab={activeTab} setActiveTab={setActiveTab} />;
         if (user.role === 'Mentor') return <MentorNavbar />;
         return <Navbar />;
     };
@@ -32,7 +33,7 @@ function App() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/assessment" element={<MentalHealthAssessment />} /> {/* NEW: Public route for assessment */}
+                    <Route path="/assessment" element={<MentalHealthAssessment />} />
 
                     {/* Root path "/" - redirect based on user or go to home if unauthenticated */}
                     <Route path="/" element={<PublicOrRedirect />} />
@@ -42,7 +43,7 @@ function App() {
                         path="/dashboard/student"
                         element={
                             <ProtectedRoute allowedRoles={['Student']}>
-                                <StudentDashboard />
+                                <StudentDashboard activeTab={activeTab} setActiveTab={setActiveTab} /> {/* Modified: Pass activeTab props */}
                             </ProtectedRoute>
                         }
                     />

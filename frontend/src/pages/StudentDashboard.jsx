@@ -1,4 +1,3 @@
-// client/src/pages/StudentDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getMentors } from '../api/chat';
@@ -11,8 +10,9 @@ import StudentOverviewTab from '../components/StudentOverviewTab';
 import StudentAppointmentsTab from '../components/StudentAppointmentsTab';
 import StudentMentorsTab from '../components/StudentMentorsTab';
 import MoodTrackerTab from '../components/MoodTrackerTab';
+import StudentPodcastsTab from '../components/StudentPodcastsTab';
 
-const StudentDashboard = () => {
+const StudentDashboard = ({ activeTab, setActiveTab }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [mentors, setMentors] = useState([]);
@@ -21,7 +21,6 @@ const StudentDashboard = () => {
     const [error, setError] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMentor, setSelectedMentor] = useState(null);
-    const [activeTab, setActiveTab] = useState('overview'); // State for active tab
 
     const fetchDashboardData = async () => {
         if (!user || user.role !== 'Student') {
@@ -35,7 +34,6 @@ const StudentDashboard = () => {
 
             const appointments = await getStudentAppointments();
             setMyAppointments(appointments);
-
         } catch (err) {
             setError(err.msg || 'Failed to fetch dashboard data.');
             console.error(err);
@@ -47,7 +45,7 @@ const StudentDashboard = () => {
     useEffect(() => {
         fetchDashboardData();
 
-        // NEW: Poll for student appointments every 5 seconds to catch status updates
+        // Poll for student appointments every 5 seconds to catch status updates
         const appointmentPollInterval = setInterval(() => {
             if (user && user.role === 'Student') {
                 fetchDashboardData();
@@ -56,7 +54,7 @@ const StudentDashboard = () => {
 
         // Cleanup interval on component unmount or user change
         return () => clearInterval(appointmentPollInterval);
-    }, [user]); // Re-run effect if user changes
+    }, [user]);
 
     const startChat = (mentorId) => {
         navigate(`/chat/${mentorId}`);
@@ -106,50 +104,12 @@ const StudentDashboard = () => {
         );
     }
 
-    // Helper for tab styling
-    const getTabClasses = (tabName) =>
-        `py-3 px-6 text-lg font-semibold cursor-pointer transition-colors duration-300 ${
-            activeTab === tabName
-                ? 'border-b-4 border-blue-600 text-blue-800'
-                : 'text-gray-600 hover:text-blue-600'
-        }`;
-
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="min-h-screen bg-gray-50 pt-20 px-6"> {/* Modified: Added pt-20 for fixed navbar */}
             <div className="container mx-auto bg-white rounded-xl shadow-2xl p-8 border border-gray-200">
                 <h1 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">
                     Student Dashboard
                 </h1>
-
-                {/* Tab Navigation */}
-                <div className="border-b border-gray-200 mb-8">
-                    <nav className="-mb-px flex justify-center space-x-8" aria-label="Tabs">
-                        <button
-                            onClick={() => setActiveTab('overview')}
-                            className={getTabClasses('overview')}
-                        >
-                            Overview
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('moodTracker')}
-                            className={getTabClasses('moodTracker')}
-                        >
-                            Mood Tracker
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('appointments')}
-                            className={getTabClasses('appointments')}
-                        >
-                            Appointments
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('mentors')}
-                            className={getTabClasses('mentors')}
-                        >
-                            Connect with Mentors
-                        </button>
-                    </nav>
-                </div>
 
                 {/* Content based on activeTab */}
                 {activeTab === 'overview' && (
@@ -161,9 +121,9 @@ const StudentDashboard = () => {
                     />
                 )}
 
-                {activeTab === 'moodTracker' && (
-                    <MoodTrackerTab />
-                )}
+                {activeTab === 'moodTracker' && <MoodTrackerTab />}
+
+                {activeTab === 'podcasts' && <StudentPodcastsTab />}
 
                 {activeTab === 'appointments' && (
                     <StudentAppointmentsTab
