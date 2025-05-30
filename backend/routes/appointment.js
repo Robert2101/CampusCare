@@ -113,10 +113,10 @@ router.get('/mentor', auth, async (req, res) => {
 });
 
 // @route   PUT api/appointments/:id/status
-// @desc    Update appointment status (Accept, Reject, Cancel, Complete)
+// @desc    Update appointment status (Accept, Reject, Cancel, Complete) and mentor description
 // @access  Private (Student can cancel, Mentor can accept/reject/complete)
 router.put('/:id/status', auth, async (req, res) => {
-    const { status } = req.body;
+    const { status, mentorDescription } = req.body; // NEW: Destructure mentorDescription
     const { id } = req.params;
 
     if (!['Pending', 'Accepted', 'Rejected', 'Completed', 'Cancelled'].includes(status)) {
@@ -132,8 +132,9 @@ router.put('/:id/status', auth, async (req, res) => {
 
         // Prevent status changes for Emergency appointments via this route if they are already accepted
         if (appointment.type === 'Emergency' && appointment.status === 'Accepted') {
-             return res.status(400).json({ msg: 'Emergency appointments cannot be modified via this route once accepted.' });
+            return res.status(400).json({ msg: 'Emergency appointments cannot be modified via this route once accepted.' });
         }
+
         // Students can only cancel their own pending appointment (regular or emergency)
         if (req.user.role === 'Student') {
             if (String(appointment.student) !== req.user.id) {
@@ -144,7 +145,6 @@ router.put('/:id/status', auth, async (req, res) => {
             }
         }
         // Mentor can accept, reject, or complete their own REGULAR appointments
-        // Emergency appointments are handled by a separate accept route
         else if (req.user.role === 'Mentor') {
             if (String(appointment.mentor) !== req.user.id || appointment.type === 'Emergency') {
                 return res.status(403).json({ msg: 'Not authorized to modify this appointment or it is an emergency type.' });
@@ -152,12 +152,16 @@ router.put('/:id/status', auth, async (req, res) => {
             if (!['Accepted', 'Rejected', 'Completed'].includes(status)) {
                 return res.status(400).json({ msg: 'Mentors can only accept, reject, or complete regular appointments.' });
             }
-            // Logic for status transitions (optional but good practice)
+            // Logic for status transitions
             if (status === 'Accepted' && appointment.status !== 'Pending') {
                 return res.status(400).json({ msg: 'Only pending appointments can be accepted' });
             }
-            if ((status === 'Rejected' || status === 'Completed') && appointment.status === 'Pending') {
-                return res.status(400).json({ msg: 'Cannot reject/complete a pending appointment directly' });
+            if ((status === 'Rejected' || status === 'Completed') && appointment.status !== 'Accepted') {
+                return res.status(400).json({ msg: 'Cannot reject/complete an appointment that is not accepted' });
+            }
+            // NEW: Update mentorDescription if provided and status is 'Completed'
+            if (status === 'Completed' && mentorDescription) {
+                appointment.mentorDescription = mentorDescription;
             }
         } else {
             return res.status(403).json({ msg: 'Unauthorized role for this action' });
@@ -166,7 +170,6 @@ router.put('/:id/status', auth, async (req, res) => {
         appointment.status = status;
         await appointment.save();
         res.json(appointment);
-
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

@@ -14,14 +14,12 @@ function Home() {
         const ctx = canvas.getContext('2d');
         let animationFrameId;
 
-        // Set canvas size
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // Create stars
         const stars = [];
         const starCount = window.innerWidth < 768 ? 100 : 200;
-        
+
         for (let i = 0; i < starCount; i++) {
             stars.push({
                 x: Math.random() * canvas.width,
@@ -32,33 +30,29 @@ function Home() {
             });
         }
 
-        // Animation loop
         const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
+
             stars.forEach(star => {
                 ctx.beginPath();
                 ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
                 ctx.fillStyle = 'white';
                 ctx.fill();
-                
-                // Move stars
+
                 star.x += star.vx / 100;
                 star.y += star.vy / 100;
-                
-                // Reset stars that go off screen
+
                 if (star.x < 0 || star.x > canvas.width) star.x = Math.random() * canvas.width;
                 if (star.y < 0 || star.y > canvas.height) star.y = Math.random() * canvas.height;
             });
-            
+
             animationFrameId = requestAnimationFrame(animate);
         };
 
         animate();
 
-        // Handle resize
         const handleResize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -89,7 +83,7 @@ function Home() {
             md: 'px-10 py-5 text-xl',
             sm: 'px-8 py-4 text-lg'
         };
-        
+
         if (user) {
             return (
                 <Link
@@ -122,20 +116,21 @@ function Home() {
     return (
         <div className="min-h-screen text-white overflow-hidden relative font-sans">
             {/* Starfield Canvas */}
-            <canvas 
-                ref={canvasRef} 
+            <canvas
+                ref={canvasRef}
                 className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none"
             />
-            
+
             {/* Content Container */}
             <div className="relative z-10">
                 {/* Navigation */}
-<nav className="fixed top-0 left-0 w-full py-6 px-8 flex justify-between items-center z-50 bg-black/30 backdrop-blur-md">
+                <nav className="fixed top-0 left-0 w-full py-6 px-8 flex justify-between items-center z-50 bg-black/30 backdrop-blur-md">
                     <div className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
                         CampusCare
                     </div>
                     <div className="hidden md:flex gap-8">
                         <a href="#features" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline underline-offset-8">Features</a>
+                        <Link to="/assessment" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline underline-offset-8">Take Assessment</Link>
                         <a href="#resources" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline underline-offset-8">Resources</a>
                         <a href="#about" className="text-white/80 hover:text-white transition-colors duration-300 hover:underline underline-offset-8">About</a>
                     </div>
@@ -150,10 +145,14 @@ function Home() {
                         <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-2xl mx-auto">
                             Your mental health companion in the vast universe of student life
                         </p>
-                        {/* {renderAuthButtons('lg')} */}
+                        <Link
+                            to="/assessment"
+                            className="px-12 py-6 text-2xl bg-gradient-to-r from-black via-gray-900 to-gray-800 hover:from-gray-950 hover:to-black text-white font-medium rounded-full transition-all duration-500 hover:scale-105 hover:shadow-2xl text-center shadow-lg"
+                        >
+                            Take Anxiety and Depression Test
+                        </Link>
                     </div>
-                    
-                    {/* Animated scroll indicator */}
+
                     <div className={`absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
                         <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -167,7 +166,6 @@ function Home() {
                         <h2 className="text-4xl md:text-5xl font-bold mb-12 bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-200">
                             Your Support System
                         </h2>
-                        
                         <div className="grid md:grid-cols-3 gap-8 mb-20">
                             <div className="bg-white/5 p-8 rounded-2xl backdrop-blur-sm hover:bg-white/10 transition-all duration-500 hover:-translate-y-2 border border-white/10">
                                 <div className="text-4xl mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">24/7</div>
@@ -185,7 +183,6 @@ function Home() {
                                 <p className="text-white/80">Connect with others who understand your journey.</p>
                             </div>
                         </div>
-                        
                         {/* {renderAuthButtons('md')} */}
                     </div>
                 </section>
@@ -199,7 +196,6 @@ function Home() {
                         <p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto">
                             If you're in crisis, please reach out to these trusted resources:
                         </p>
-                        
                         <div className="grid sm:grid-cols-2 gap-6 mb-16">
                             <a href="#" className="bg-white/5 hover:bg-white/10 p-6 rounded-xl transition-all duration-300 hover:-translate-y-1 border border-white/10">
                                 <h3 className="text-xl font-bold mb-2">National Crisis Line</h3>
@@ -218,7 +214,6 @@ function Home() {
                                 <p className="text-white/70">Connect with others</p>
                             </a>
                         </div>
-                        
                         {renderAuthButtons('md')}
                     </div>
                 </section>

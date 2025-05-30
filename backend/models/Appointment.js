@@ -1,4 +1,3 @@
-// server/models/Appointment.js
 const mongoose = require('mongoose');
 
 const AppointmentSchema = new mongoose.Schema({
@@ -7,20 +6,20 @@ const AppointmentSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    mentor: { // Made optional for emergency appointments
+    mentor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: false // IMPORTANT: Set to false to allow null for emergency requests
+        required: false
     },
-    date: { // Date of the appointment
+    date: {
         type: Date,
         required: true
     },
-    time: { // Time of the appointment (e.g., "10:00 AM", "14:30", or "ASAP")
+    time: {
         type: String,
         required: true
     },
-    type: { // NEW: To distinguish between regular and emergency appointments
+    type: {
         type: String,
         enum: ['Regular', 'Emergency'],
         default: 'Regular'
@@ -30,8 +29,12 @@ const AppointmentSchema = new mongoose.Schema({
         enum: ['Pending', 'Accepted', 'Rejected', 'Completed', 'Cancelled'],
         default: 'Pending'
     },
-    notes: { // Optional notes for the appointment
+    notes: {
         type: String
+    },
+    mentorDescription: { // NEW: Field for mentor's notes/description
+        type: String,
+        default: ''
     },
     createdAt: {
         type: Date,

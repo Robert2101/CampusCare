@@ -49,9 +49,9 @@ export const getMentorAppointments = async () => {
     }
 };
 
-export const updateAppointmentStatus = async (appointmentId, status) => {
+export const updateAppointmentStatus = async (appointmentId, status, mentorDescription = '') => {
     try {
-        const res = await axios.put(`${API_URL}/${appointmentId}/status`, { status }, {
+        const res = await axios.put(`${API_URL}/${appointmentId}/status`, { status, mentorDescription }, {
             headers: {
                 'x-auth-token': getToken()
             }

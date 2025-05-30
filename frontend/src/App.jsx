@@ -9,9 +9,9 @@ import Chat from './pages/Chat';
 import StudentDashboard from './pages/StudentDashboard';
 import MentorDashboard from './pages/MentorDashboard';
 import Home from './pages/Home';
+import MentalHealthAssessment from './pages/MentalHealthAssessment'; // NEW: Import the assessment page
 import StudentNavbar from './components/StudentNavbar';
 import MentorNavbar from './components/MentorNavbar';
-
 
 function App() {
     const { user } = useAuth();
@@ -22,7 +22,7 @@ function App() {
         if (user.role === 'Mentor') return <MentorNavbar />;
         return <Navbar />;
     };
-    
+
     return (
         <Router>
             <AuthProvider>
@@ -32,6 +32,7 @@ function App() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/assessment" element={<MentalHealthAssessment />} /> {/* NEW: Public route for assessment */}
 
                     {/* Root path "/" - redirect based on user or go to home if unauthenticated */}
                     <Route path="/" element={<PublicOrRedirect />} />
@@ -61,7 +62,6 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
-                    
                 </Routes>
             </AuthProvider>
         </Router>

@@ -1,4 +1,3 @@
-// client/src/pages/MentorDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getConversations } from '../api/chat';
@@ -9,10 +8,12 @@ const MentorDashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [conversations, setConversations] = useState([]);
-    const [myAppointments, setMyAppointments] = useState([]); // Now only regular appointments
+    const [myAppointments, setMyAppointments] = useState([]);
     const [pendingEmergencyAppointments, setPendingEmergencyAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [selectedAppointmentId, setSelectedAppointmentId] = useState(null); // NEW: Track appointment for description input
+    const [mentorDescription, setMentorDescription] = useState(''); // NEW: Store mentor's description input
 
     const fetchDashboardData = async () => {
         if (!user || user.role !== 'Mentor') {
@@ -24,7 +25,7 @@ const MentorDashboard = () => {
             const conversationList = await getConversations();
             setConversations(conversationList);
 
-            const regularAppointments = await getMentorAppointments(); // Fetches only regular appointments
+            const regularAppointments = await getMentorAppointments();
             setMyAppointments(regularAppointments);
 
             const pendingEmergencies = await getPendingEmergencyAppointmentsForMentors();
@@ -40,19 +41,20 @@ const MentorDashboard = () => {
 
     useEffect(() => {
         fetchDashboardData();
-        // Poll for new emergency requests every 10 seconds
         const emergencyPollInterval = setInterval(fetchDashboardData, 10000);
-        return () => clearInterval(emergencyPollInterval); // Cleanup
+        return () => clearInterval(emergencyPollInterval);
     }, [user]);
 
     const viewChat = (partnerId) => {
         navigate(`/chat/${partnerId}`);
     };
 
-    const handleAppointmentStatusUpdate = async (appointmentId, status) => {
+    const handleAppointmentStatusUpdate = async (appointmentId, status, description = '') => {
         try {
-            await updateAppointmentStatus(appointmentId, status);
-            fetchDashboardData(); // Refresh appointments after update
+            await updateAppointmentStatus(appointmentId, status, description);
+            setSelectedAppointmentId(null); // NEW: Reset form
+            setMentorDescription(''); // NEW: Clear description
+            fetchDashboardData();
         } catch (err) {
             setError(err.msg || `Failed to ${status.toLowerCase()} appointment.`);
             console.error(err);
@@ -64,13 +66,28 @@ const MentorDashboard = () => {
             try {
                 const acceptedApp = await acceptEmergencyAppointment(appointmentId);
                 window.alert(`Emergency request accepted! You are now assigned to ${acceptedApp.student.name}. Please connect with them via chat.`);
-                fetchDashboardData(); // Refresh all lists
-                navigate(`/chat/${acceptedApp.student._id}`); // Optionally navigate to chat
+                fetchDashboardData();
+                navigate(`/chat/${acceptedApp.student._id}`);
             } catch (err) {
                 setError(err.msg || 'Failed to accept emergency request. It might have been accepted by another mentor.');
                 console.error(err);
             }
         }
+    };
+
+    // NEW: Handler for initiating description input
+    const handleMarkAsCompletedClick = (appointmentId) => {
+        setSelectedAppointmentId(appointmentId);
+        setMentorDescription(''); // Reset description input
+    };
+
+    // NEW: Handler for submitting description
+    const handleDescriptionSubmit = (appointmentId) => {
+        if (!mentorDescription.trim()) {
+            window.alert('Please provide a description before marking as completed.');
+            return;
+        }
+        handleAppointmentStatusUpdate(appointmentId, 'Completed', mentorDescription);
     };
 
     if (loading) {
@@ -160,6 +177,9 @@ const MentorDashboard = () => {
                                         </span>
                                     </p>
                                     {app.notes && <p className="text-gray-700 mb-3"><span className="font-medium">Notes:</span> {app.notes}</p>}
+                                    {app.mentorDescription && app.status === 'Completed' && (
+                                        <p className="text-gray-700 mb-3"><span className="font-medium">Mentor Notes:</span> {app.mentorDescription}</p>
+                                    )}
 
                                     <div className="mt-4 flex flex-wrap gap-3">
                                         {app.status === 'Pending' && (
@@ -179,12 +199,39 @@ const MentorDashboard = () => {
                                             </>
                                         )}
                                         {app.status === 'Accepted' && (
-                                            <button
-                                                onClick={() => handleAppointmentStatusUpdate(app._id, 'Completed')}
-                                                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
-                                            >
-                                                Mark as Completed
-                                            </button>
+                                            <>
+                                                <button
+                                                    onClick={() => handleMarkAsCompletedClick(app._id)}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+                                                >
+                                                    Mark as Completed
+                                                </button>
+                                                {selectedAppointmentId === app._id && (
+                                                    <div className="mt-4 w-full">
+                                                        <textarea
+                                                            value={mentorDescription}
+                                                            onChange={(e) => setMentorDescription(e.target.value)}
+                                                            placeholder="Enter notes for the student"
+                                                            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            rows="4"
+                                                        />
+                                                        <div className="mt-2 flex gap-2">
+                                                            <button
+                                                                onClick={() => handleDescriptionSubmit(app._id)}
+                                                                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+                                                            >
+                                                                Submit
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setSelectedAppointmentId(null)}
+                                                                className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                 </div>
