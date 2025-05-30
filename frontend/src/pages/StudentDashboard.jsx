@@ -161,7 +161,7 @@ const StudentDashboard = ({ activeTab, setActiveTab }) => {
                 style={{ background: 'black' }}
             ></canvas>            <div className="container mx-auto relative z-10">
                 <div className="bg-black/50 backdrop-blur-md rounded-xl shadow-2xl p-6 sm:p-8 border border-indigo-500/30">
-                    <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 mb-8 animate-pulse">
+                    <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 mb-8">
                         Student Dashboard
                     </h1>
 

@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { createEmergencyAppointment } from '../api/appointment';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import Particles from 'react-tsparticles';
+import { loadFull } from 'tsparticles';
 
 const StudentOverviewTab = ({ user, myAppointments, setActiveTab, onEmergencyRequestSent }) => {
     const [dailyTip, setDailyTip] = useState({ q: '', a: '' });
@@ -8,6 +11,15 @@ const StudentOverviewTab = ({ user, myAppointments, setActiveTab, onEmergencyReq
     const [tipError, setTipError] = useState('');
     const [emergencyLoading, setEmergencyLoading] = useState(false);
     const [emergencyMessage, setEmergencyMessage] = useState('');
+    const [isHovered, setIsHovered] = useState(false);
+    const containerRef = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start start", "end start"]
+    });
+    
+    const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+    const scaleBg = useTransform(scrollYProgress, [0, 1], [1, 1.2]);
 
     const fetchDailyTip = async () => {
         setTipLoading(true);
@@ -53,75 +65,252 @@ const StudentOverviewTab = ({ user, myAppointments, setActiveTab, onEmergencyReq
         .sort((a, b) => new Date(a.date) - new Date(b.date))
         .slice(0, 2);
 
+    const particlesInit = async (engine) => {
+        await loadFull(engine);
+    };
+
     return (
-        <section>
-            <h2 className="text-3xl font-bold text-indigo-200 mb-6 border-b-2 border-indigo-500/50 pb-2">
-                Welcome, {user.name}!
-            </h2>
-            <div className="bg-gray-900/50 p-6 rounded-lg shadow-md border border-indigo-500/30 text-center">
-                <p className="text-xl text-gray-300 mb-4">
-                    This is your central hub. Use the tabs above to manage your activities.
-                </p>
-                <p className="text-md text-gray-400">Connect with mentors and manage your appointments.</p>
+        <div className="relative overflow-hidden min-h-screen" ref={containerRef}>
+            {/* Starfield Background */}
+            <div className="absolute inset-0 z-0">
+                <Particles
+                    id="tsparticles"
+                    init={particlesInit}
+                    options={{
+                        fpsLimit: 60,
+                        interactivity: {
+                            events: {
+                                onHover: {
+                                    enable: true,
+                                    mode: "repulse"
+                                }
+                            }
+                        },
+                        particles: {
+                            color: {
+                                value: "#7c3aed"
+                            },
+                            links: {
+                                color: "#8b5cf6",
+                                distance: 150,
+                                enable: true,
+                                opacity: 0.3,
+                                width: 1
+                            },
+                            move: {
+                                direction: "none",
+                                enable: true,
+                                outModes: "out",
+                                random: true,
+                                speed: 0.5,
+                                straight: false
+                            },
+                            number: {
+                                density: {
+                                    enable: true
+                                },
+                                value: 80
+                            },
+                            opacity: {
+                                value: 0.5
+                            },
+                            shape: {
+                                type: "circle"
+                            },
+                            size: {
+                                value: { min: 1, max: 3 }
+                            }
+                        }
+                    }}
+                />
             </div>
 
-            <div className="mt-8 p-6 bg-red-900/20 rounded-lg shadow-md border border-red-500/50 text-center">
-                <h3 className="text-2xl font-bold text-red-300 mb-4">Need Immediate Support?</h3>
-                <p className="text-gray-300 mb-4">
-                    Click below to send an urgent request to all available mentors.
-                </p>
-                <button
-                    onClick={handleEmergencyButtonClick}
-                    disabled={emergencyLoading}
-                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            {/* Hero Section */}
+            <motion.section 
+                className="relative z-10 pt-32 pb-20 px-6 sm:px-12 lg:px-24"
+                style={{
+                    y: yBg,
+                    scale: scaleBg
+                }}
+            >
+                {/* Glowing Headline */}
+                <motion.h2 
+                    className="text-5xl md:text-7xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-600 animate-gradient"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
                 >
-                    {emergencyLoading ? 'Sending Request...' : 'Emergency Support'}
-                </button>
-                {emergencyMessage && (
-                    <p
-                        className={`mt-4 text-lg font-semibold ${emergencyMessage.includes('successfully') ? 'text-green-400' : 'text-red-400'
-                            }`}
-                    >
-                        {emergencyMessage}
-                    </p>
-                )}
-            </div>
+                    Welcome, <span className="text-white">{user.name}</span>
+                </motion.h2>
 
-            <div className="mt-8 p-6 bg-yellow-900/20 rounded-lg shadow-md border border-yellow-500/50">
-                <h3 className="text-2xl font-bold text-yellow-300 mb-4 text-center">Daily Mental Health Tip</h3>
-                {tipLoading ? (
-                    <p className="text-center text-gray-400">Loading your daily dose of inspiration...</p>
-                ) : tipError ? (
-                    <p className="text-center text-red-400">{tipError}</p>
-                ) : (
-                    <div className="text-center">
-                        <p className="text-xl italic text-gray-300 mb-2">"{dailyTip.q}"</p>
-                        <p className="text-lg font-semibold text-gray-400">- {dailyTip.a || 'Unknown'}</p>
-                    </div>
-                )}
-            </div>
+                {/* Hero Description */}
+                <motion.p 
+                    className="text-xl text-center text-gray-300 max-w-3xl mx-auto mb-16"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
+                >
+                    Your personalized wellness dashboard to connect with mentors, track your mood, and manage your academic journey.
+                </motion.p>
 
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-green-900/20 p-5 rounded-lg shadow-md border border-green-500/50">
-                    <h3 className="text-xl font-bold text-green-300 mb-2">Upcoming Appointments</h3>
-                    {upcomingAppointments.length > 0 ? (
-                        upcomingAppointments.map((app) => (
-                            <p key={app._id} className="text-gray-300 text-sm">
-                                {new Date(app.date).toLocaleDateString()} at {app.time} with {app.mentor?.name}
-                            </p>
-                        ))
-                    ) : (
-                        <p className="text-gray-400 text-sm">No upcoming regular appointments.</p>
-                    )}
-                    <button
-                        onClick={() => setActiveTab('appointments')}
-                        className="mt-3 text-indigo-400 hover:text-indigo-300 hover:underline text-sm"
+                {/* Floating UI Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    {/* Emergency Card */}
+                    <motion.div 
+                        className="glass-panel p-6 rounded-xl border border-indigo-500/20 backdrop-blur-lg"
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4, duration: 0.6 }}
+                        whileHover={{ y: -10 }}
                     >
-                        View all appointments
-                    </button>
+                        <h3 className="text-2xl font-bold text-red-300 mb-4">Emergency Support</h3>
+                        <p className="text-gray-300 mb-6">
+                            Immediate connection with available mentors for urgent situations.
+                        </p>
+                        <button
+                            onClick={handleEmergencyButtonClick}
+                            disabled={emergencyLoading}
+                            className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 
+                                ${emergencyLoading ? 'bg-red-800/50' : 'bg-red-600/90 hover:bg-red-700/90'}
+                                shadow-lg hover:shadow-red-500/30`}
+                        >
+                            {emergencyLoading ? 'Sending...' : 'Request Help'}
+                        </button>
+                        {emergencyMessage && (
+                            <motion.p 
+                                className={`mt-4 text-sm font-medium ${emergencyMessage.includes('successfully') ? 'text-green-400' : 'text-red-400'}`}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                            >
+                                {emergencyMessage}
+                            </motion.p>
+                        )}
+                    </motion.div>
+
+                    {/* Daily Tip Card */}
+                    <motion.div 
+                        className="glass-panel p-6 rounded-xl border border-purple-500/20 backdrop-blur-lg"
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6, duration: 0.6 }}
+                        whileHover={{ y: -10 }}
+                    >
+                        <h3 className="text-2xl font-bold text-purple-300 mb-4">Daily Wellness Tip</h3>
+                        {tipLoading ? (
+                            <div className="h-32 flex items-center justify-center">
+                                <div className="animate-pulse flex space-x-4">
+                                    <div className="flex-1 space-y-4 py-1">
+                                        <div className="h-4 bg-purple-800/50 rounded w-3/4"></div>
+                                        <div className="space-y-2">
+                                            <div className="h-4 bg-purple-800/50 rounded"></div>
+                                            <div className="h-4 bg-purple-800/50 rounded w-5/6"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : tipError ? (
+                            <p className="text-red-400">{tipError}</p>
+                        ) : (
+                            <div>
+                                <p className="text-lg italic text-gray-300 mb-3">"{dailyTip.q}"</p>
+                                <p className="text-sm font-medium text-purple-400">— {dailyTip.a || 'Wellness Team'}</p>
+                            </div>
+                        )}
+                    </motion.div>
+
+                    {/* Appointments Card */}
+                    <motion.div 
+                        className="glass-panel p-6 rounded-xl border border-blue-500/20 backdrop-blur-lg"
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8, duration: 0.6 }}
+                        whileHover={{ y: -10 }}
+                    >
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-2xl font-bold text-blue-300">Upcoming</h3>
+                            <button 
+                                onClick={() => setActiveTab('appointments')}
+                                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                            >
+                                View All →
+                            </button>
+                        </div>
+                        
+                        {upcomingAppointments.length > 0 ? (
+                            <div className="space-y-4">
+                                {upcomingAppointments.map((app) => (
+                                    <div key={app._id} className="bg-blue-900/20 p-3 rounded-lg">
+                                        <p className="text-gray-300 font-medium">
+                                            {new Date(app.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                                        </p>
+                                        <p className="text-sm text-gray-400">
+                                            {app.time} with <span className="text-blue-300">{app.mentor?.name}</span>
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-blue-900/20 p-4 rounded-lg text-center">
+                                <p className="text-gray-400">No upcoming appointments</p>
+                                <button 
+                                    onClick={() => setActiveTab('appointments')}
+                                    className="mt-2 text-blue-400 hover:text-blue-300 text-sm"
+                                >
+                                    Schedule one now
+                                </button>
+                            </div>
+                        )}
+                    </motion.div>
                 </div>
-            </div>
-        </section>
+
+                {/* Mood Tracker Section */}
+                <motion.div 
+                    className="glass-panel mt-12 p-8 rounded-xl border border-indigo-500/20 backdrop-blur-lg max-w-4xl mx-auto"
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1, duration: 0.6 }}
+                >
+                    
+                </motion.div>
+            </motion.section>
+
+            {/* Global Styles */}
+            <style jsx global>{`
+                .glass-panel {
+                    background: rgba(15, 23, 42, 0.4);
+                    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    transition: all 0.3s ease;
+                }
+                
+                .glass-panel:hover {
+                    border-color: rgba(139, 92, 246, 0.4);
+                    box-shadow: 0 8px 32px 0 rgba(99, 102, 241, 0.3);
+                }
+                
+                .animate-gradient {
+                    background-size: 300%;
+                    -webkit-animation: animatedgradient 6s ease infinite alternate;
+                    -moz-animation: animatedgradient 6s ease infinite alternate;
+                    animation: animatedgradient 6s ease infinite alternate;
+                }
+                
+                @keyframes animatedgradient {
+                    0% {
+                        background-position: 0% 50%;
+                    }
+                    50% {
+                        background-position: 100% 50%;
+                    }
+                    100% {
+                        background-position: 0% 50%;
+                    }
+                }
+            `}</style>
+        </div>
     );
 };
 

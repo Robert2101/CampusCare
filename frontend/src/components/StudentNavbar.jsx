@@ -27,7 +27,7 @@ const StudentNavbar = ({ activeTab, setActiveTab }) => {
                 {/* Logo */}
                 <Link
                     to="/dashboard/student"
-                    className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 animate-pulse"
+                    className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 "
                 >
                     CampusCare
                 </Link>
