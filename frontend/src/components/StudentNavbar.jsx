@@ -43,9 +43,7 @@ const StudentNavbar = ({ activeTab, setActiveTab }) => {
                         <button onClick={() => setActiveTab('overview')} className={getTabClasses('overview')}>
                             Overview
                         </button>
-                        <button onClick={() => setActiveTab('moodTracker')} className={getTabClasses('moodTracker')}>
-                            Mood Tracker
-                        </button>
+                        
                         <button onClick={() => setActiveTab('appointments')} className={getTabClasses('appointments')}>
                             Appointments
                         </button>
