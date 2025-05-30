@@ -19,7 +19,7 @@ const MentorNavbar = () => {
                     CampusCare
                 </Link>
                 <div className="flex items-center space-x-6">
-                    <Link to="/students" className="text-white font-medium hover:text-indigo-200">Students</Link>
+
                     <span className="text-white text-lg font-medium">
                         Welcome, {user.name} ({user.role})
                     </span>
