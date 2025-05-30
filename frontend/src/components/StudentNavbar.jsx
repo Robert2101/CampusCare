@@ -61,7 +61,7 @@ const StudentNavbar = ({ activeTab, setActiveTab }) => {
                             onClick={() => setActiveTab('podcasts')}
                             className={getTabClasses('podcasts')}
                         >
-                            Podcasts
+                            Healing Conversations
                         </button>
                     </div>
 
