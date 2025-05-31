@@ -7,6 +7,7 @@ const { check, validationResult } = require('express-validator');
 const Appointment = require('../models/Appointment'); // Make sure this path is correct
 const User = require('../models/User'); // Make sure this path is correct
 const auth = require('../middleware/auth');
+const twilio = require('twilio');
 
 // Helper function to validate date and time format
 const isValidDateTime = (dateString, timeString) => {
@@ -175,5 +176,94 @@ router.put('/:id/status', auth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER; // Your Twilio phone number (e.g., +12345678900)
+const helplineNumber = process.env.EMERGENCY_HELPLINE_NUMBER; // The real helpline number you want to call (e.g., +18001234567)
+
+// Ensure Twilio client is initialized
+const client = new twilio(accountSid, authToken);
+
+
+// --- New Route for Emergency Helpline Call ---
+router.post('/emergency/call', async (req, res) => {
+    try {
+        if (!helplineNumber) {
+            return res.status(500).json({ msg: 'Emergency helpline number not configured.' });
+        }
+
+        // Optional: You might want to log who initiated the call
+        console.log(`User ${req.user.id} (${req.user.email}) is requesting an emergency call.`);
+
+        // Initiate the call using Twilio
+        const call = await client.calls.create({
+            url: process.env.TWILIO_TWIML_BIN_URL, // Use the TwiML Bin URL you created
+            to: helplineNumber,
+            from: twilioPhoneNumber,
+        });
+
+        console.log(`Emergency call initiated: ${call.sid}`);
+        res.status(200).json({ msg: 'Emergency helpline call initiated successfully!', callSid: call.sid });
+
+    } catch (error) {
+        console.error('Error initiating emergency call:', error);
+        res.status(500).json({ msg: 'Failed to initiate emergency helpline call.', error: error.message });
+    }
+});
+
+// --- Modify createEmergencyAppointment (if it's in the same file) ---
+// You already have this, but I'm including it to show how the call might integrate
+router.post('/appointments/emergency', async (req, res) => {
+    try {
+        // Your existing logic to find available mentors and create emergency appointment
+        // ... (this part of your code is already in your backend)
+        
+        // Example: Finding a mentor and creating an appointment
+        const availableMentor = await User.findOne({ role: 'Mentor', isAvailable: true });
+        if (!availableMentor) {
+            // If no mentors are available to book an appointment with, we still want to make the call
+            // You might choose to send a specific message here
+            const callResponse = await axios.post('http://localhost:5001/api/utils/emergency/call');
+            return res.status(202).json({ 
+                msg: 'No immediate mentor available for booking, but emergency call initiated.',
+                callStatus: callResponse.data.msg
+            });
+        }
+
+        const newAppointment = new Appointment({
+            student: req.user.id,
+            mentor: availableMentor._id,
+            type: 'Emergency',
+            date: new Date(), // Current date/time
+            time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            status: 'Pending', // Or 'Accepted' if it's auto-accepted
+        });
+
+        await newAppointment.save();
+
+        // Optional: Notify the mentor (e.g., via email, push notification, or Twilio SMS)
+        // client.messages.create({
+        //     body: `Emergency request from ${req.user.name}. Please check your dashboard.`,
+        //     to: availableMentor.phone, // Assuming mentors have a phone number
+        //     from: twilioPhoneNumber
+        // }).then(message => console.log(`SMS sent to mentor: ${message.sid}`));
+
+
+        // After successfully creating the emergency appointment,
+        // ALSO trigger the Twilio call.
+        // It's often better to make a separate API call from the frontend
+        // for the Twilio call, or you can do it here if you prefer.
+        // For simplicity and clearer separation of concerns, I've left the call initiation
+        // as a separate endpoint, which the frontend will call *after* the appointment request.
+        
+        res.status(201).json({ msg: 'Emergency appointment requested successfully!', appointment: newAppointment });
+
+    } catch (error) {
+        console.error('Error creating emergency appointment:', error);
+        res.status(500).json({ msg: 'Server error during emergency appointment creation.' });
+    }
+});
+
 
 module.exports = router;
+

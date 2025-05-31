@@ -22,8 +22,9 @@ app.use('/api/appointments', require('./routes/appointment'));
 app.use('/api/emergency-appointments', require('./routes/emergencyAppointment'));
 app.use('/api/utils', require('./routes/utils'));
 app.use('/api/mood', require('./routes/mood')); // ENSURE THIS LINE IS PRESENT AND CORRECT!
+// app.use('/api/emergency', require('./routes/emergency'));
+app.use('/api/helpline-call', require('./routes/helplineCall'));
 
-console.log('[server.js] All routes registered.'); // DEBUG LOG
 
 const PORT = process.env.PORT || 5001;
 
