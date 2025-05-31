@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import logo from '../assets/logo.png';// Assuming your logo is in src/assets/logo.png
+import logo from '../assets/logo.jpeg';// Assuming your logo is in src/assets/logo.png
 
 const StudentNavbar = ({ activeTab, setActiveTab }) => {
     const { user, logout } = useAuth();
