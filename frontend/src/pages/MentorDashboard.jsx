@@ -120,10 +120,8 @@ const MentorDashboard = () => {
         <div className="min-h-screen bg-black p-6"> {/* Changed bg-gray-900 to bg-black */}
             <div className="container mx-auto bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800"> {/* Adjusted background and border for contrast */}
                 <div className="text-center mb-10">
-                    <h1 className="text-4xl font-bold text-white mb-2"> {/* Changed gradient text to white */}
-                        Mentor Dashboard
-                    </h1>
-                    <p className="text-gray-400">Welcome back, {user?.name}</p>
+
+                    <p className="text-gray-300 font-extralight text-2xl">Welcome back, {user?.name}</p>
                 </div>
 
                 {/* Navigation Tabs */}
