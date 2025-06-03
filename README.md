@@ -109,5 +109,3 @@ We welcome contributions! Please follow these steps:
 This project is licensed under the MIT License.  
 *If a LICENSE file is present, please refer to it for details. Otherwise, update this section with your project's license information.*
 
----
-> _This README was generated based on the codebase structure and application logic. Please customize further as needed!_
